@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "reqwest",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ]
+  }
+}

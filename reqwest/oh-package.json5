@@ -1,0 +1,26 @@
+{
+  "types": "index.d.ts",
+  "keywords": [
+    "OpenHarmony",
+    "HarmonyOS",
+    "http",
+    "request",
+    "axios"
+  ],
+  "author": "kingtous",
+  "ohos": {
+    "org": "opensource"
+  },
+  "description": "Reqwest，是Rust中一个全能网络请求库。本库基于cargo Reqwest原库进行适配，去除OpenSSL依赖，增加忽略SSL证书校验等自签场景下需要的特性。",
+  "main": "Index.ts",
+  "repository": "https://gitee.com/kingtous/ohos_reqwest",
+  "type": "module",
+  "version": "0.0.1-rc.0",
+  "tags": [
+    "Network"
+  ],
+  "dependencies": {},
+  "license": "MIT",
+  "devDependencies": {},
+  "name": "@kingtous/reqwest"
+}

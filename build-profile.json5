@@ -1,0 +1,53 @@
+{
+  "app": {
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\a1147\\.ohos\\config\\default_reqwest_ohos_l6Qb3QXrqfcuaA8UG1Cq2rHxXIoeChPcvpyJqlBg1mA=.cer",
+          "storePassword": "0000001B88EE766456C417686485EBEF8CEB7A489FB075BB37CDEEC2A33B541CB4FFE46AF6A3C64C3FB09B",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001B39FBE0B12AA5E42BD8E8DCE68C2E1F7A60B79B40EE6343CADCD99E4C4505C55B860E220FCD7A4C",
+          "profile": "C:\\Users\\a1147\\.ohos\\config\\default_reqwest_ohos_l6Qb3QXrqfcuaA8UG1Cq2rHxXIoeChPcvpyJqlBg1mA=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\a1147\\.ohos\\config\\default_reqwest_ohos_l6Qb3QXrqfcuaA8UG1Cq2rHxXIoeChPcvpyJqlBg1mA=.p12"
+        }
+      }
+    ],
+    "compileSdkVersion": 9,
+    "compatibleSdkVersion": 9,
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug",
+      },
+      {
+        "name": "release"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reqwest",
+      "srcPath": "./reqwest"
+    }
+  ]
+}
