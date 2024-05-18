@@ -15,6 +15,7 @@ SDK版本需求：API 9及以上。
 - 使用Rust编写。
 - 封装支持传入取消控制器（API 11），中断请求promise。（由`[@ohos-rs/abort-controller](https://ohos-rs.github.io/ecosystem/polyfill/abort-controller.html)`提供支持）
 - 全架构支持（aarch64/arm/x86_64）。
+- 自动转换返回类型。（二进制、纯文本、json）
 
 ## 安装方法
 
@@ -80,16 +81,15 @@ interface ReqwestOptions {
 }
 ```
 
-为了将数据传回arkts层，返回格式为string；用户需要JSON.parse可能得到以下内容：
-```json5
-{
-  status_code: 200, //状态码
-  response_body: "" //文字类型response，用户可自己实现对response的转化（json, text）
+返回格式：
+```typescript
+interface ReqwestResponse {
+    statusCode: number,
+    responseBody: Uint8Array | Object | String,
+    url: String,
+    responseHeaders: Record<string, string>,
 }
 ```
-
-`response_body`为后端传回的数据。
-
 
 ## Roadmap
 

@@ -5,7 +5,7 @@ enum ReqwestCertType {
 
 interface ReqwestCert {
   ty: ReqwestCertType;
-  // 证书字符串
+  // 证书字符串，要去掉===begin ===end头部尾部
   cert: string;
 }
 
