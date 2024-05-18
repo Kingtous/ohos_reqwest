@@ -1,30 +1,29 @@
 mod client;
 
-use std::collections::HashMap;
+use std::{collections::HashMap, primitive};
 
-use client::request::OHRequestBuilder;
+use client::{request::OHRequestBuilder, ReqwestOptions};
 use napi_derive_ohos::napi;
-use napi_ohos::{Env, JsObject, Result};
-use ohos_hilog_binding::hilog_debug;
+use napi_ohos::{bindgen_prelude::FromNapiValue, AsyncWorkPromise, Env, JsFunction, JsObject, Result};
+use ohos_hilog_binding::{hilog_debug, hilog_warn};
 
 
 #[napi(ts_return_type = "Promise<string>")]
-pub fn safe_request(
+pub fn request(
     env: Env,
     url: String,
-    headers: HashMap<String, String>,
     method: String,
-    body: String,
-    ignore_ssl: bool,
+    options: String, // will serialize to ReqwestOptions
 ) -> Result<JsObject> {
-    hilog_debug!(format!("url: {}, headers: {:?}, method: {}, body: {}, ignore_ssl: {}", url, headers, method, body, ignore_ssl));
+    let options: ReqwestOptions = serde_json::from_str(&options).unwrap_or_else(|error| {
+        hilog_warn!(format!("parse options failed: {:?}, your options: {} (length={})", error, options.as_str(), options.len()));
+        ReqwestOptions::new()
+    });
+    hilog_debug!(format!("url: {}, method: {}, options: {:?}", url, method, options));
     let task = OHRequestBuilder::new()
         .url_std(url)
         .method_std(method)
-        .headers(headers)
-        .body(body)
-        .ignore_ssl(ignore_ssl)
-        .build();
-    let promise = env.spawn(task).unwrap();
+        .options(options);
+    let promise = env.spawn(task.build()).unwrap();
     return Ok(promise.promise_object());
 }

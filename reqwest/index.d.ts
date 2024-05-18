@@ -1,7 +1,14 @@
+import { ReqwestOptions, ReqwestCertType, ReqwestCert } from "./src/main/ets/types/options";
+
 export interface ReqwestStatic {
-  safeRequest(url: string, headers: Record<string, string>, method: string, body: string, ignoreSsl: boolean): Promise<string>;
+  request(url: string, method: string, options: ReqwestOptions): Promise<string>;
 }
 
-declare const Reqwest: ReqwestStatic;
+declare const reqwest: ReqwestStatic;
 
-export default Reqwest;
+export default reqwest;
+
+export {
+  ReqwestCertType,
+  ReqwestCert
+}

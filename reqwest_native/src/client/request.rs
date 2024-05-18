@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::format};
+use std::{collections::HashMap, fmt::format, hash::Hash};
 
 use napi_ohos::{JsString, Task};
 use ohos_hilog_binding::hilog_debug;
@@ -6,35 +6,34 @@ use reqwest::{blocking::Body, Method};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use super::get_default_secure_client;
+use crate::client;
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
+use super::{get_request_client, ReqwestOptions};
+
+#[derive(Deserialize, Serialize, Clone, Debug, Default)]
 pub struct OHResponse {
     status_code: u16,
     response_body: String,
 }
 
-pub struct OHRequest<T: Into<Body>> {
+pub struct OHRequest {
     method: String,
     url: String,
-    headers: HashMap<String, String>,
-    body: T,
     // ssl
-    ignore_ssl: bool,
+    options: Option<ReqwestOptions>,
 }
 
 pub struct OHRequestBuilder {
-    inner: OHRequest<String>,
+    inner: OHRequest,
 }
+
 impl OHRequestBuilder {
     pub fn new() -> Self {
         OHRequestBuilder {
             inner: OHRequest {
                 method: "GET".to_string(),
                 url: "".to_string(),
-                headers: HashMap::new(),
-                body: "".to_string(),
-                ignore_ssl: false,
+                options: None,
             },
         }
     }
@@ -59,50 +58,59 @@ impl OHRequestBuilder {
         self
     }
 
-    pub fn body(mut self, body: String) -> Self {
-        self.inner.body = body;
-        self
-    }
-
-    pub fn header(mut self, key: &str, value: &str) -> Self {
-        self.inner
-            .headers
-            .insert(key.to_string(), value.to_string());
-        self
-    }
-
-    pub fn headers(mut self, headers: HashMap<String, String>) -> Self {
-        self.inner.headers = headers;
-        self
-    }
-
-    pub fn build(self) -> OHRequest<String> {
+    pub fn build(self) -> OHRequest {
         self.inner
     }
 
-    pub fn ignore_ssl(mut self, ignore_ssl: bool) -> Self {
-        self.inner.ignore_ssl = ignore_ssl;
+    pub fn options(mut self, options: ReqwestOptions) -> Self {
+        self.inner.options = Some(options);
         self
     }
 }
 
-impl<T: Into<Body> + Send + Clone> Task for OHRequest<T> {
+impl Task for OHRequest {
     type Output = String;
 
     type JsValue = JsString;
 
     fn compute(&mut self) -> napi_ohos::Result<Self::Output> {
-        let client = get_default_secure_client(self.ignore_ssl);
+        let client =
+            get_request_client(self.options.as_ref());
+        if let Err(err) = client {
+            return Err(napi_ohos::Error::from_reason(format!("{:?}", err)));
+        }
+        let client = client.unwrap();
+        // method, url, body
+        hilog_debug!(format!("method: {}, url: {}", self.method, self.url));
         let mut builder = client
             .request(
                 Method::from_bytes(self.method.as_bytes()).unwrap_or(Method::GET),
                 self.url.clone(),
             )
-            .body(self.body.clone())
             .header("x-remote-unlock-client", "openharmony");
-        for (key, value) in self.headers.iter() {
-            builder = builder.header(key, value);
+        hilog_debug!(format!("applying options: {:?}", self.options));
+        // options
+        if let Some(option) = self.options.as_ref() {
+            // timeout
+            if let Some(timeout) = option.timeout {
+                builder = builder.timeout(std::time::Duration::from_millis(timeout));
+            }
+            // headers
+            let hders = HashMap::new();
+            for (key, value) in option.headers.as_ref().unwrap_or(&hders).iter() {
+                builder = builder.header(key, value);
+            };
+            // body
+            if let Some(body) = option.body.as_ref() {
+                builder = builder.body(body.clone());
+            } else if let Some(data) = option.json_body.as_ref() {
+                builder = builder.json(data);
+            } else if let Some(data) = option.form_body.as_ref() {
+                builder = builder.form(data);
+            }
         }
+        hilog_debug!(format!("sending request: {:?}", builder));
+        // send request
         match builder.build() {
             Ok(request) => match client.execute(request) {
                 Ok(resp) => {
@@ -126,12 +134,12 @@ impl<T: Into<Body> + Send + Clone> Task for OHRequest<T> {
                     }
                 }
                 Err(err) => {
-                    hilog_debug!(format!("request failed: {}", err));
+                    hilog_debug!(format!("request failed: {:?}", err));
                     return Err(napi_ohos::Error::from_reason(err.to_string()));
                 }
             },
             Err(err) => {
-                hilog_debug!(format!("request builder failed: {}", err));
+                hilog_debug!(format!("request builder failed: {:?}", err));
                 return Err(napi_ohos::Error::from_reason(err.to_string()));
             }
         }

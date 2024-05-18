@@ -24,9 +24,20 @@ ohpm install @kingtous/reqwest
 
 
 ```typescript
-import Reqwest from '@kingtous/reqwest';
+import reqwest from '@kingtous/reqwest';
 
-Reqwest.safeRequest(this.url, {"header-1": "value-1"}, "GET", "body", this.ignore_ssl).then((resp) => {
+reqwest.request(this.url, "GET", {
+  ignoreSsl: this.ignore_ssl,
+  noProxy: this.noProxy,
+  responseType: "application/json",
+  caCert: [
+    {
+      ty: ReqwestCertType.PEM,
+      cert: `MXXXXXXXXXXXXXXX==` // 不需要---BEGIN CERT和---ENC CERT，否则会报错，添加不上
+    }
+  ],
+  timeout: 5000
+}).then((resp) => {
   AlertDialog.show({
     title: "请求结果",
     message: `${resp}`
@@ -37,6 +48,29 @@ Reqwest.safeRequest(this.url, {"header-1": "value-1"}, "GET", "body", this.ignor
     message: `${error}`
   });
 });
+```
+
+其中options定义为：
+```typescript
+interface ReqwestOptions {
+  responseType?: string;
+  // 连接超时，ms
+  connectTimeout?: number;
+  // 输出传输超时：ms
+  timeout?: number;
+  // CA证书数组
+  caCert: ReqwestCert[];
+  // headers
+  headers: Record<string, string>;
+  // 以下三个body，按需传一个即可。
+  body?: string;
+  formBody?: Record<string, string>;
+  jsonBody?: Record<string, string>;
+  // 不遵循系统代理
+  noProxy: boolean;
+  // 忽略SSL校验
+  ignoreSsl: boolean;
+}
 ```
 
 
