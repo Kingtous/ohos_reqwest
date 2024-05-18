@@ -1,10 +1,11 @@
 import reqwest, { ReqwestCertType } from '@kingtous/reqwest';
 import { AbortController } from '@ohos-rs/abort-controller';
+import util from '@ohos.util';
 
 @Entry
 @Component
 struct Index {
-  @State url: string = 'https://192.168.0.101:2088';
+  @State url: string = 'https://www.baidu.com';
   @State ignore_ssl: boolean = false;
   @State noProxy: boolean = false;
   @State caCert: string = `MIIBtjCCAVugAwIBAgITBmyf1XSXNmY/Owua2eiedgPySjAKBggqhkjOPQQDAjA5
@@ -21,7 +22,6 @@ YyRIHN8wfdVoOw==`
   @State forceRustls: boolean = true;
   // abort
   private abortController: AbortController = new AbortController();
-
 
   triggerRequest() {
     reqwest.request(this.url, "GET", {
@@ -40,7 +40,7 @@ YyRIHN8wfdVoOw==`
     }).then((resp) => {
       AlertDialog.show({
         title: "请求结果",
-        message: `${resp}`
+        message: `状态码: ${resp.statusCode}\n响应头：${JSON.stringify(resp.responseHeaders)}\n 请求URL：${resp.url} \n内容类型：${typeof resp.responseBody}\n 内容：${resp.responseBody}`
       });
     }).catch((error: Error) => {
       AlertDialog.show({
@@ -55,7 +55,7 @@ YyRIHN8wfdVoOw==`
       Column() {
         TextInput({
           text: this.url,
-        }) .onChange((value)=> {
+        }).onChange((value) => {
           this.url = value;
         })
         Row() {
@@ -66,8 +66,8 @@ YyRIHN8wfdVoOw==`
             this.ignore_ssl = c;
           })
           Text("完全忽略SSL证书").margin({
-            left:4,
-            right:4
+            left: 4,
+            right: 4
           })
 
           Checkbox({
@@ -77,23 +77,26 @@ YyRIHN8wfdVoOw==`
             this.forceRustls = c;
           })
           Text("默认使用rustls").margin({
-            left:4
+            left: 4
           })
         }.justifyContent(FlexAlign.Center)
-        Row(){
-          Text("CA证书")
+
+        Row() {
+          Text("自定义CA证书")
           TextInput({
             text: this.caCert
           }).onChange((ca) => {
             this.caCert = ca;
           }).width(300)
         }
+
         Divider()
         Button() {
           Text("请求").fontColor(Color.White).margin(8)
         }.onClick((_) => {
           this.triggerRequest();
         })
+
         Button() {
           Text("取消请求").fontColor(Color.White).margin(8)
         }.onClick((_) => {

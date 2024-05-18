@@ -31,6 +31,13 @@ interface ReqwestOptions {
   forceRustlsSsl?: boolean;
 }
 
+interface ReqwestResponse {
+  statusCode: number,
+  responseBody: Uint8Array | Object | String,
+  url: String,
+  responseHeaders: Record<string, string>,
+}
+
 interface MiscOptions {
   // from ets库： import { AbortSignal, AbortController } from '@ohos-rs/abort-controller'; 这里是ts文件，为了兼容js/ts调用，使用any类型
   signal: any
@@ -40,5 +47,6 @@ export {
   ReqwestCertType,
   ReqwestCert,
   ReqwestOptions,
-  MiscOptions
+  MiscOptions,
+  ReqwestResponse
 }

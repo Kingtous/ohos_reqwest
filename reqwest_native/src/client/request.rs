@@ -1,18 +1,21 @@
 use std::{collections::HashMap, fmt::format, hash::Hash};
 
+use crate::client;
+use base64::{prelude::BASE64_STANDARD, Engine};
+use bytes::Bytes;
 use napi_ohos::{JsString, Task};
-use ohos_hilog_binding::hilog_debug;
+use ohos_hilog_binding::{hilog_debug, hilog_warn};
 use reqwest::{blocking::Body, Method};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-
-use crate::client;
 
 use super::{get_request_client, ReqwestOptions};
 
 #[derive(Deserialize, Serialize, Clone, Debug, Default)]
 pub struct OHResponse {
     status_code: u16,
+    url: String,
+    response_headers: HashMap<String, String>,
     response_body: String,
 }
 
@@ -74,8 +77,7 @@ impl Task for OHRequest {
     type JsValue = JsString;
 
     fn compute(&mut self) -> napi_ohos::Result<Self::Output> {
-        let client =
-            get_request_client(self.options.as_ref());
+        let client = get_request_client(self.options.as_ref());
         if let Err(err) = client {
             return Err(napi_ohos::Error::from_reason(format!("{:?}", err)));
         }
@@ -99,7 +101,7 @@ impl Task for OHRequest {
             let hders = HashMap::new();
             for (key, value) in option.headers.as_ref().unwrap_or(&hders).iter() {
                 builder = builder.header(key, value);
-            };
+            }
             // body
             if let Some(body) = option.body.as_ref() {
                 builder = builder.body(body.clone());
@@ -116,22 +118,22 @@ impl Task for OHRequest {
                 Ok(resp) => {
                     let status_code = resp.status().as_u16();
                     hilog_debug!(format!("status_code: {}", status_code));
-                    match resp.text() {
-                        Ok(text) => {
-                            return Ok(json!(OHResponse {
-                                status_code: status_code,
-                                response_body: text
-                            })
-                            .to_string());
-                        }
-                        Err(err) => {
-                            return Ok(json!(OHResponse {
-                                status_code: status_code,
-                                response_body: err.to_string()
-                            })
-                            .to_string());
-                        }
-                    }
+                    let mut header_map = HashMap::new();
+                    resp.headers().iter().for_each(|(key, value)| {
+                        header_map.insert(key.to_string(), value.to_str().unwrap_or("").to_string());
+                    });
+                    let url = resp.url().to_string();
+                    let body = BASE64_STANDARD.encode(resp.bytes().unwrap_or_else(|_| {
+                        hilog_warn!(format!("response body fail to encode to base64"));
+                        Bytes::new()
+                    }));
+                    return Ok(json!(OHResponse {
+                        status_code: status_code,
+                        url: url,
+                        response_headers: header_map,
+                        response_body: body
+                    })
+                    .to_string());
                 }
                 Err(err) => {
                     hilog_debug!(format!("request failed: {:?}", err));

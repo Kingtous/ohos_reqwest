@@ -80,11 +80,21 @@ interface ReqwestOptions {
 }
 ```
 
+为了将数据传回arkts层，返回格式为string；用户需要JSON.parse可能得到以下内容：
+```json5
+{
+  status_code: 200, //状态码
+  response_body: "" //文字类型response，用户可自己实现对response的转化（json, text）
+}
+```
+
+`response_body`为后端传回的数据。
+
 
 ## Roadmap
 
 - [ ] 新增下载文件、上传文件。
-- [ ] 重构接口。
+- [x] 重构接口。
 - [ ] ...
 
 ## 贡献代码
