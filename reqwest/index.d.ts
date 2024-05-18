@@ -10,5 +10,6 @@ export default reqwest;
 
 export {
   ReqwestCertType,
-  ReqwestCert
+  ReqwestCert,
+  ReqwestOptions
 }
