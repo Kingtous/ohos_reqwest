@@ -19,6 +19,8 @@ SDK版本需求：API 9及以上。
 
 ## 安装方法
 
+注：本库还在审核中，可先源码依赖。
+
 本库使用`ohpm`即可安装：
 ```shell
 ohpm install @kingtous/reqwest
