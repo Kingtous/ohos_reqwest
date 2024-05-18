@@ -1,4 +1,10 @@
-import { ReqwestOptions, ReqwestCertType, ReqwestCert, MiscOptions, ReqwestResponse } from "./src/main/ets/types/options";
+import {
+  ReqwestOptions,
+  ReqwestCertType,
+  ReqwestCert,
+  MiscOptions,
+  ReqwestResponse
+} from "./src/main/ets/types/options";
 
 export interface ReqwestStatic {
   request(url: string, method: string, options: ReqwestOptions, miscOptions?: MiscOptions): Promise<ReqwestResponse>;
@@ -19,5 +25,5 @@ declare const reqwest: ReqwestStatic;
 export default reqwest;
 
 export {
-  ReqwestCertType, ReqwestCert, ReqwestOptions, MiscOptions
+  ReqwestCertType, ReqwestCert, ReqwestOptions, MiscOptions, ReqwestResponse
 }
