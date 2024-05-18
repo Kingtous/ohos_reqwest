@@ -12,7 +12,7 @@ SDK版本需求：API 9及以上。
 ## 特性
 
 - 支持忽略SSL校验。在自签证书场景下尤为重要。（实测httpclient、axiosforhttpclient貌似还无法完全跳过SSL证书校验，或出现SSL is null的问题，于是有了这个库）
-- 使用Rust编写。
+- 使用纯Rust编写，无OpenSSL外部依赖。
 - 封装支持传入取消控制器（API 11），中断请求promise。（由`[@ohos-rs/abort-controller](https://ohos-rs.github.io/ecosystem/polyfill/abort-controller.html)`提供支持）
 - 全架构支持（aarch64/arm/x86_64）。
 - 自动转换返回类型。（二进制、纯文本、json）
