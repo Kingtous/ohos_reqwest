@@ -20,8 +20,10 @@
   "tags": [
     "Network"
   ],
-  "dependencies": {},
+  "dependencies": {
+  },
   "license": "MIT",
   "devDependencies": {},
-  "name": "@kingtous/reqwest"
+  "name": "@kingtous/reqwest",
+  "dynamicDependencies": {}
 }

@@ -1,4 +1,5 @@
 import reqwest, { ReqwestCertType } from '@kingtous/reqwest';
+import { AbortController } from '@ohos-rs/abort-controller';
 
 @Entry
 @Component
@@ -18,6 +19,9 @@ BqWTrBqYaGFy+uGh0PsceGCmQ5nFuMQCIQCcAu/xlJyzlvnrxir4tiz+OpAUFteM
 YyRIHN8wfdVoOw==`
   @State timeout: number = 5000;
   @State forceRustls: boolean = true;
+  // abort
+  private abortController: AbortController = new AbortController();
+
 
   triggerRequest() {
     reqwest.request(this.url, "GET", {
@@ -31,12 +35,14 @@ YyRIHN8wfdVoOw==`
         }
       ],
       timeout: this.timeout
+    }, {
+      signal: this.abortController.signal
     }).then((resp) => {
       AlertDialog.show({
         title: "请求结果",
         message: `${resp}`
       });
-    }).catch((error) => {
+    }).catch((error: Error) => {
       AlertDialog.show({
         title: "请求失败",
         message: `${error}`
@@ -87,6 +93,11 @@ YyRIHN8wfdVoOw==`
           Text("请求").fontColor(Color.White).margin(8)
         }.onClick((_) => {
           this.triggerRequest();
+        })
+        Button() {
+          Text("取消请求").fontColor(Color.White).margin(8)
+        }.onClick((_) => {
+          this.abortController.abort('被取消');
         })
       }
       .width('100%')

@@ -13,14 +13,14 @@
           "signAlg": "SHA256withECDSA",
           "storeFile": "C:\\Users\\a1147\\.ohos\\config\\default_reqwest_ohos_l6Qb3QXrqfcuaA8UG1Cq2rHxXIoeChPcvpyJqlBg1mA=.p12"
         }
-      }
+      },
     ],
-    "compileSdkVersion": 9,
-    "compatibleSdkVersion": 9,
     "products": [
       {
         "name": "default",
         "signingConfig": "default",
+        "compatibleSdkVersion": 11,
+        "compileSdkVersion": 11
       }
     ],
     "buildModeSet": [

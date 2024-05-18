@@ -4,11 +4,16 @@
 
 本库将Rust下全能HTTP/HTTPS库带到OpenHarmony生态，提供一层封装调用Reqwest预编译库，减少业务适配负担。
 
+SDK版本需求：API 9及以上。
+
+> 注：如果使用`@ohos-rs/abort-controller`搭配完成promise取消，则需要使用API 11（该库使用了API 11 ESObject特性）。具体详见本根仓库，运行即可。
+
 
 ## 特性
 
 - 支持忽略SSL校验。在自签证书场景下尤为重要。（实测httpclient、axiosforhttpclient貌似还无法完全跳过SSL证书校验，或出现SSL is null的问题，于是有了这个库）
 - 使用Rust编写。
+- 封装支持传入取消控制器（API 11），中断请求promise。（由`[@ohos-rs/abort-controller](https://ohos-rs.github.io/ecosystem/polyfill/abort-controller.html)`提供支持）
 - 全架构支持（aarch64/arm/x86_64）。
 
 ## 安装方法
@@ -37,6 +42,8 @@ reqwest.request(this.url, "GET", {
     }
   ],
   timeout: 5000
+}, {
+  signal: this.abortController.signal // 取消信号
 }).then((resp) => {
   AlertDialog.show({
     title: "请求结果",
